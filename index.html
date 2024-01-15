@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello Auth0</title>
+  <!-- Include Auth0 Lock library -->
+  <script src="https://cdn.auth0.com/js/lock/12.4/lock.min.js"></script>
+</head>
+<body>
+  <h1>Hello Auth0!</h1>
+  <!-- Add a login button with an ID -->
+  <button id="btn-login">Login</button>
+  <!-- Container for Auth0 Lock -->
+  <div id="login-dialog"></div>
+  <!-- Container for displaying user information -->
+  <div id="user-info-container"></div>
+
+  <script>
+    var accessToken = null;
+    var profile = null;
+    document.addEventListener('DOMContentLoaded', function () {
+      // Ensure the DOM is fully loaded before executing the script
+      var lock = new Auth0Lock('7lDtoxNvtJFpL75VpB2lQS3ueUG4MZb3', 'matias-onboarding.dse.ninja', {
+        auth: {
+          redirect: false,
+          sso: false,
+          audience: 'https://test'
+        },
+        allowSignUp: false,
+        languageDictionary: {
+          title: '',
+          signUpTitle: '',
+          signUpSubmitLabel: 'Get Started',
+          emailInputPlaceholder: 'Your email address',
+          passwordInputPlaceholder: 'Password'
+        },
+        theme: {
+          primaryColor: '#098BCC'
+        },
+        closable: true,
+        autofocus: true,
+        avatar: null,
+        container: 'login-dialog',
+        additionalSignUpFields: [{
+          name: 'name',
+          placeholder: 'Your name',
+          storage: 'root',
+        }]
+      });
+
+      // Add an event listener to the login button
+      document.getElementById('btn-login').addEventListener('click', function () {
+        // Show Auth0 Lock when the button is clicked
+        lock.show();
+      });
+
+      // Listen for the authenticated event
+      lock.on('authenticated', function (authResult) {
+        lock.getUserInfo(authResult.accessToken, function (error, profileResult) {
+          if (error) {
+            // Handle error
+            return;
+          }
+
+          accessToken = authResult.accessToken;
+          profile = profileResult;
+
+          // Update DOM
+          updateUserInfo();
+          updateLoginButton();
+        });
+      });
+
+      // Function to update user information in the DOM
+      function updateUserInfo() {
+        var userInfoContainer = document.getElementById('user-info-container');
+        var popupContainer = document.getElementById('login-dialog');
+        popupContainer.innerHTML = null;
+        userInfoContainer.innerHTML = '<h2>User Information</h2>' +
+          '<p>Name: ' + profile.name + '</p>' +
+          '<p>Email: ' + profile.email + '</p>' +
+          '<p>Access Token: ' + accessToken + '</p>';
+      }
+
+      // Function to update login button based on user state
+      function updateLoginButton() {
+        if (accessToken) {
+          document.getElementById('btn-login').innerHTML = 'Logout';
+          document.getElementById('btn-login').removeEventListener('click', showLogin);
+          document.getElementById('btn-login').addEventListener('click', logout);
+        } else {
+          document.getElementById('btn-login').innerHTML = 'Login';
+          document.getElementById('btn-login').removeEventListener('click', logout);
+          document.getElementById('btn-login').addEventListener('click', showLogin);
+        }
+      }
+
+      // Function to show Auth0 Lock
+      function showLogin() {
+        lock.show();
+      }
+
+      // Function to handle logout
+      function logout() {
+        // Implement logout logic as needed
+        accessToken = null;
+        profile = null;
+        lock.logout({
+          returnTo: 'http://localhost:3000'
+        });
+        // Update DOM
+        updateUserInfo();
+        updateLoginButton();
+      }
+
+      // Initialize login button state on page load
+      updateLoginButton();
+    });
+  </script>
+</body>
+</html>

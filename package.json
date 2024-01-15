@@ -1,0 +1,19 @@
+{
+    "name": "auth0-express-example",
+    "version": "1.0.0",
+    "description": "An example Express.js application with Auth0 authentication",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "keywords": [
+        "express",
+        "auth0",
+        "authentication"
+    ],
+    "author": "Your Name",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.17.1"
+    }
+}
